@@ -1,0 +1,308 @@
+/* Ember Court — the table: deep green felt, warm wood, gold trim.
+   No web fonts, no images: every suit mark is inline SVG and every
+   card is CSS, so the game loads with no network request. */
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #14261a;
+  color: #f3e9d2;
+  font-family: Georgia, 'Times New Roman', serif;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 0%, #2c4a34 0%, #1d3325 55%, #14261a 100%);
+  min-height: 100%;
+  overflow: hidden;
+}
+
+#table { height: 100vh; width: 100vw; }
+#status {
+  position: fixed;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+kbd {
+  font-family: inherit;
+  background: #f3e9d2;
+  color: #1d3325;
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-weight: bold;
+}
+
+/* ---------- the table ---------- */
+.table {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px 10px;
+}
+
+.foe-row, .player-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 0 auto;
+}
+
+.side-info { width: 260px; flex: 0 0 auto; }
+.side-info h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  letter-spacing: .4px;
+  color: #f3e9d2;
+}
+.foe-row .side-info h2 { color: #c2d8f7; }
+
+.life {
+  position: relative;
+  height: 26px;
+  background: rgba(0, 0, 0, .45);
+  border: 1px solid #8a6d3b;
+  border-radius: 13px;
+  overflow: hidden;
+}
+.life-fill { height: 100%; transition: width .3s ease; }
+.life-fill.good { background: linear-gradient(#7fc97f, #3f9e4d); }
+.life-fill.warn { background: linear-gradient(#e8c25a, #c98f1f); }
+.life-fill.low { background: linear-gradient(#e87a5a, #c0392b); }
+.life-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+}
+
+.foe-hand, .player-hand {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  min-height: 118px;
+}
+
+.round-badge {
+  width: 80px;
+  flex: 0 0 auto;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: #d9c27a;
+}
+.round-badge span {
+  display: block;
+  font-size: 34px;
+  line-height: 1;
+  color: #f3e9d2;
+}
+
+.middle-row {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  min-height: 0;
+  padding: 6px 0;
+}
+
+.played { text-align: center; }
+.played.empty {
+  width: 150px;
+  height: 208px;
+  border: 2px dashed rgba(243, 233, 210, .35);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(243, 233, 210, .55);
+  font-style: italic;
+  font-size: 14px;
+  padding: 10px;
+}
+.played-who { margin-top: 8px; font-size: 14px; color: #d9c27a; }
+
+.versus { width: 280px; text-align: center; }
+.versus > span {
+  display: inline-block;
+  font-size: 44px;
+  font-weight: bold;
+  color: #d9c27a;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .6);
+}
+.round-result {
+  margin: 10px 0 0;
+  font-size: 17px;
+  line-height: 1.45;
+  color: #f3e9d2;
+  min-height: 74px;
+}
+.round-result.win { color: #a8e6a1; }
+.round-result.loss { color: #f0a08e; }
+.round-result.clash { color: #e8c25a; }
+
+.score-box {
+  width: 230px;
+  flex: 0 0 auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #d9c27a;
+  text-align: right;
+}
+
+/* ---------- cards ---------- */
+.card {
+  position: relative;
+  width: 108px;
+  height: 150px;
+  background: linear-gradient(160deg, #fffdf6 0%, #f3e9d2 100%);
+  border: 2px solid var(--suit, #333);
+  border-radius: 10px;
+  color: #222;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .5);
+  flex: 0 0 auto;
+}
+.card.crown { border-width: 3px; box-shadow: 0 0 0 2px #d9c27a, 0 4px 12px rgba(0, 0, 0, .55); }
+.card.small { width: 74px; height: 104px; }
+
+.card-corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  color: var(--suit);
+}
+.card-corner.top { top: 6px; left: 7px; }
+.card-corner.bottom { bottom: 6px; right: 7px; transform: rotate(180deg); }
+.card-value { font-size: 26px; font-weight: bold; }
+.card.small .card-value { font-size: 18px; }
+.card-glyph { width: 20px; height: 20px; margin-top: 2px; }
+.card-glyph svg { width: 100%; height: 100%; display: block; }
+.card.small .card-glyph { width: 14px; height: 14px; }
+.card-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -58%);
+  width: 52px;
+  height: 52px;
+  color: var(--suit);
+}
+.card-center svg { width: 100%; height: 100%; }
+.card.small .card-center { width: 34px; height: 34px; }
+.card-name {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1.15;
+  color: #333;
+}
+.card-name span { font-size: 12px; font-weight: normal; color: var(--suit); }
+.card.small .card-name { display: none; }
+
+.card.back {
+  background: linear-gradient(150deg, #7a1f1f 0%, #4a1212 60%, #2c0a0a 100%);
+  border-color: #d9c27a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #d9c27a;
+}
+.card-back-mark { font-size: 30px; line-height: 1; }
+.card.small .card-back-mark { font-size: 20px; }
+.card-back-word { font-size: 10px; letter-spacing: 2px; text-align: center; }
+.card.small .card-back-word { display: none; }
+
+.hand-card {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform .15s ease;
+}
+.hand-card:hover, .hand-card:focus-visible { transform: translateY(-12px); outline: 2px solid #d9c27a; outline-offset: 3px; border-radius: 10px; }
+.hand-card .card { width: 104px; height: 146px; }
+.hand-card .card-value { font-size: 26px; }
+
+/* ---------- title screen ---------- */
+.title-screen {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+.title-kicker {
+  margin: 0 0 4px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #d9c27a;
+}
+.title-screen h1 {
+  margin: 0;
+  font-size: 84px;
+  line-height: 1;
+  letter-spacing: 6px;
+  color: #f3e9d2;
+  text-shadow: 0 0 24px rgba(216, 74, 47, .55), 0 3px 0 rgba(0, 0, 0, .5);
+}
+.title-sub { font-size: 20px; font-style: italic; color: #e8dcc0; margin: 12px 0 18px; }
+.title-cards { display: flex; gap: 14px; margin-bottom: 20px; }
+.title-rules { max-width: 760px; font-size: 16px; line-height: 1.55; color: #e8dcc0; }
+.title-rules p { margin: 6px 0; }
+.suit { font-weight: bold; }
+.suit.ember { color: #f08a70; }
+.suit.gale { color: #8fd19a; }
+.suit.stone { color: #d8cbb2; }
+.suit.tide { color: #8fb4ef; }
+.title-start { font-size: 20px; font-weight: bold; color: #f3e9d2; margin: 18px 0 6px; animation: pulse 2s ease-in-out infinite; }
+.title-keys { font-size: 14px; color: #c9b98d; margin: 0; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+
+/* ---------- end screens ---------- */
+.end-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(10, 20, 13, .82);
+  z-index: 10;
+  padding: 20px;
+}
+.end-screen h1 {
+  margin: 0;
+  font-size: 96px;
+  letter-spacing: 8px;
+  line-height: 1;
+}
+.end-screen.win h1 { color: #a8e6a1; text-shadow: 0 0 32px rgba(63, 158, 77, .8); }
+.end-screen.loss h1 { color: #f0a08e; text-shadow: 0 0 32px rgba(216, 74, 47, .8); }
+.end-sub { font-size: 21px; font-style: italic; max-width: 640px; margin: 14px 0 8px; }
+.end-score { font-size: 17px; color: #d9c27a; margin: 4px 0; }
+.end-restart { font-size: 18px; font-weight: bold; margin-top: 20px; animation: pulse 2s ease-in-out infinite; }
